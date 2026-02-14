@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import api from '../api/axiosConfig';
 import BarcodeScanner from '../components/BarcodeScanner';
 
