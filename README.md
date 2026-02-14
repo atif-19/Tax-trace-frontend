@@ -116,3 +116,13 @@
 - **Platform**: Vercel
 - **Environment Management**: Used `.env` variables to toggle between local and production backend URLs.
 - **Hardware Requirement**: Deployment via HTTPS is mandatory for `navigator.mediaDevices` (camera) to function on mobile devices.
+
+
+## 📷 Mobile Hardware Optimization
+- **Facing Mode**: Forced `facingMode: "environment"` to ensure the rear camera is used by default on mobile devices.
+- **Device Filtering**: Implemented a filtering logic to scan device labels for "back" or "rear" to select the best possible camera lens.
+- **Constraint Fallback**: Added a secondary catch block for `getUserMedia` to handle different mobile browser security implementations.
+
+## 🚀 Deployment & Linting
+- **Dead Code Elimination**: Removed unused `stream` variable in `BarcodeScanner.jsx` to satisfy ESLint production build rules.
+- **Permission Priming**: Used `getUserMedia` as a standalone promise to ensure camera hardware is active before ZXing attempts device enumeration.

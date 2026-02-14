@@ -12,29 +12,44 @@ const BarcodeScanner = ({ onScanSuccess }) => {
 
     const startScanner = async () => {
       try {
-        // 1. Request back camera to trigger permissions/setup
+        // 1. Request back camera with FOCUS constraints
         const constraints = {
-          video: { facingMode: { exact: "environment" } }
+          video: {
+            facingMode: { exact: "environment" },
+            // Advanced constraints for better focus
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            focusMode: "continuous" 
+          }
         };
 
         try {
-          // Just call it to "warm up" the hardware, no need to save to a variable
           await navigator.mediaDevices.getUserMedia(constraints);
         } catch (e) {
-          console.warn("Exact environment camera not found, trying generic");
+          console.warn("Advanced constraints failed, trying generic environment");
           await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         }
 
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
         if (!devices.length) return;
 
-        // 2. Identify the best back camera
         const backCamera = devices.find(device => 
           device.label.toLowerCase().includes('back') || 
           device.label.toLowerCase().includes('rear')
         ) || devices[devices.length - 1];
 
-        // 3. Start the actual decoding
+        // 2. Apply focus to the active track
+        const videoTrack = videoRef.current?.srcObject?.getVideoTracks()[0];
+        if (videoTrack && videoTrack.getCapabilities) {
+           const capabilities = videoTrack.getCapabilities();
+           // If the phone supports continuous focus, turn it on!
+           if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+             await videoTrack.applyConstraints({
+               advanced: [{ focusMode: 'continuous' }]
+             });
+           }
+        }
+
         controlsRef.current = await codeReader.decodeFromVideoDevice(
           backCamera.deviceId,
           videoRef.current,
