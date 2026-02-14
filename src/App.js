@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import Navbar from './components/NavBar';
+import Scanner from './pages/Scanner';
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/protectedRoute'; // Import the guard
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <Navbar /> {/* This stays visible on every page */}
+      <main className="container mx-auto">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Navigate to="/login" />} />
+          {/* PROTECTED ROUTES */}
+          <Route path="/scanner" element={
+            <ProtectedRoute>
+              <Scanner />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </main>
     </div>
   );
 }
-
 export default App;
