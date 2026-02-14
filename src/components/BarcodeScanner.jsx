@@ -10,28 +10,42 @@ const BarcodeScanner = ({ onScanSuccess }) => {
     let active = true;
     const codeReader = new BrowserMultiFormatReader();
 
-    const startScanner = async () => {
+   const startScanner = async () => {
   try {
     const devices = await BrowserMultiFormatReader.listVideoInputDevices();
     if (!devices.length) return;
 
-    const backCamera = devices.find(device =>
-      device.label.toLowerCase().includes('back') ||
-      device.label.toLowerCase().includes('rear')
-    ) || devices[devices.length - 1];
+    // Prefer environment cameras only
+    const backCameras = devices.filter(device =>
+      device.label.toLowerCase().includes("back") ||
+      device.label.toLowerCase().includes("rear") ||
+      device.label.toLowerCase().includes("environment")
+    );
+
+    const targetCamera = backCameras.length
+      ? backCameras[0]   // pick first rear camera (usually main wide)
+      : devices[0];
 
     controlsRef.current = await codeReader.decodeFromVideoDevice(
-      backCamera.deviceId,
+      targetCamera.deviceId,
       videoRef.current,
       async (result, err) => {
-        // 🔥 Apply focus AFTER stream starts
         const videoTrack = videoRef.current?.srcObject?.getVideoTracks()[0];
-        if (videoTrack && videoTrack.getCapabilities) {
+
+        if (videoTrack?.getCapabilities) {
           const capabilities = videoTrack.getCapabilities();
 
-          if (capabilities.focusMode?.includes('continuous')) {
+          // Apply continuous focus if available
+          if (capabilities.focusMode?.includes("continuous")) {
             await videoTrack.applyConstraints({
-              advanced: [{ focusMode: 'continuous' }]
+              advanced: [{ focusMode: "continuous" }]
+            });
+          }
+
+          // Apply slight zoom to avoid ultra-wide distortion
+          if (capabilities.zoom) {
+            await videoTrack.applyConstraints({
+              advanced: [{ zoom: 1.5 }]
             });
           }
         }
@@ -43,10 +57,12 @@ const BarcodeScanner = ({ onScanSuccess }) => {
         }
       }
     );
+
   } catch (err) {
     console.error("Camera error:", err);
   }
 };
+
 
     startScanner();
 
