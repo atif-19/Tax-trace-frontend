@@ -23,7 +23,7 @@ const BarcodeScanner = ({ onScanSuccess }) => {
     );
 
     const targetCamera = backCameras.length
-      ? backCameras[0]   // pick first rear camera (usually main wide)
+      ? backCameras[backCameras.length-1]   // pick first rear camera (usually main wide)
       : devices[0];
 
     controlsRef.current = await codeReader.decodeFromVideoDevice(
