@@ -111,3 +111,8 @@
 - **Product Visuals**: Added `<img>` tag to Step 2 of the Scanner to display the product image returned from the backend.
 - **Image Fallback**: Implemented a placeholder icon for items that do not have an image URL in the database.
 - **Data Persistence**: Ensured `image` URL is included in the `/scans` POST payload to populate the local database on first scan.
+
+## 🚀 Deployment
+- **Platform**: Vercel
+- **Environment Management**: Used `.env` variables to toggle between local and production backend URLs.
+- **Hardware Requirement**: Deployment via HTTPS is mandatory for `navigator.mediaDevices` (camera) to function on mobile devices.
