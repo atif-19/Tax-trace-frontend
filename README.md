@@ -126,3 +126,8 @@
 ## 🚀 Deployment & Linting
 - **Dead Code Elimination**: Removed unused `stream` variable in `BarcodeScanner.jsx` to satisfy ESLint production build rules.
 - **Permission Priming**: Used `getUserMedia` as a standalone promise to ensure camera hardware is active before ZXing attempts device enumeration.
+
+## 📷 Camera Optimization
+- **Focus Mode**: Implemented `focusMode: "continuous"` via `applyConstraints` to assist with barcode clarity.
+- **Resolution Ideal**: Set 720p (1280x720) as the ideal resolution to balance processing speed and barcode detail.
+- **Hardware Interaction**: Added checks for `getVideoTracks()` capabilities to handle devices with limited focus APIs.

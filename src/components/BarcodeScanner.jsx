@@ -11,60 +11,42 @@ const BarcodeScanner = ({ onScanSuccess }) => {
     const codeReader = new BrowserMultiFormatReader();
 
     const startScanner = async () => {
-      try {
-        // 1. Request back camera with FOCUS constraints
-        const constraints = {
-          video: {
-            facingMode: { exact: "environment" },
-            // Advanced constraints for better focus
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            focusMode: "continuous" 
-          }
-        };
+  try {
+    const devices = await BrowserMultiFormatReader.listVideoInputDevices();
+    if (!devices.length) return;
 
-        try {
-          await navigator.mediaDevices.getUserMedia(constraints);
-        } catch (e) {
-          console.warn("Advanced constraints failed, trying generic environment");
-          await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        }
+    const backCamera = devices.find(device =>
+      device.label.toLowerCase().includes('back') ||
+      device.label.toLowerCase().includes('rear')
+    ) || devices[devices.length - 1];
 
-        const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-        if (!devices.length) return;
-
-        const backCamera = devices.find(device => 
-          device.label.toLowerCase().includes('back') || 
-          device.label.toLowerCase().includes('rear')
-        ) || devices[devices.length - 1];
-
-        // 2. Apply focus to the active track
+    controlsRef.current = await codeReader.decodeFromVideoDevice(
+      backCamera.deviceId,
+      videoRef.current,
+      async (result, err) => {
+        // 🔥 Apply focus AFTER stream starts
         const videoTrack = videoRef.current?.srcObject?.getVideoTracks()[0];
         if (videoTrack && videoTrack.getCapabilities) {
-           const capabilities = videoTrack.getCapabilities();
-           // If the phone supports continuous focus, turn it on!
-           if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-             await videoTrack.applyConstraints({
-               advanced: [{ focusMode: 'continuous' }]
-             });
-           }
+          const capabilities = videoTrack.getCapabilities();
+
+          if (capabilities.focusMode?.includes('continuous')) {
+            await videoTrack.applyConstraints({
+              advanced: [{ focusMode: 'continuous' }]
+            });
+          }
         }
 
-        controlsRef.current = await codeReader.decodeFromVideoDevice(
-          backCamera.deviceId,
-          videoRef.current,
-          (result, err) => {
-            if (result && active && !scannedRef.current) {
-              scannedRef.current = true;
-              onScanSuccess(result.getText());
-              controlsRef.current?.stop();
-            }
-          }
-        );
-      } catch (err) {
-        console.error("Camera error:", err);
+        if (result && active && !scannedRef.current) {
+          scannedRef.current = true;
+          onScanSuccess(result.getText());
+          controlsRef.current?.stop();
+        }
       }
-    };
+    );
+  } catch (err) {
+    console.error("Camera error:", err);
+  }
+};
 
     startScanner();
 
