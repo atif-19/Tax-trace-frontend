@@ -12,32 +12,29 @@ const BarcodeScanner = ({ onScanSuccess }) => {
 
     const startScanner = async () => {
       try {
-        // 1. Request the back camera specifically using constraints
+        // 1. Request back camera to trigger permissions/setup
         const constraints = {
-          video: {
-            facingMode: { exact: "environment" } // Forces back camera
-          }
+          video: { facingMode: { exact: "environment" } }
         };
 
-        // Fallback: If 'exact' fails (some older browsers), try without 'exact'
-        let stream;
         try {
-          stream = await navigator.mediaDevices.getUserMedia(constraints);
+          // Just call it to "warm up" the hardware, no need to save to a variable
+          await navigator.mediaDevices.getUserMedia(constraints);
         } catch (e) {
-          console.warn("Exact environment camera not found, trying generic video");
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          console.warn("Exact environment camera not found, trying generic");
+          await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         }
 
         const devices = await BrowserMultiFormatReader.listVideoInputDevices();
         if (!devices.length) return;
 
-        // 2. Filter for back camera if multiple cameras exist
-        // Usually, the last device in the list is the high-quality back camera
+        // 2. Identify the best back camera
         const backCamera = devices.find(device => 
           device.label.toLowerCase().includes('back') || 
           device.label.toLowerCase().includes('rear')
         ) || devices[devices.length - 1];
 
+        // 3. Start the actual decoding
         controlsRef.current = await codeReader.decodeFromVideoDevice(
           backCamera.deviceId,
           videoRef.current,
