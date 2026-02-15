@@ -17,6 +17,7 @@ const History = () => {
         setScans(response.data.data || []);
       } catch (err) {
         setError("Could not load your history.");
+        console.log(error);
       } finally {
         setLoading(false);
       }
