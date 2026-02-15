@@ -131,3 +131,9 @@
 - **Focus Mode**: Implemented `focusMode: "continuous"` via `applyConstraints` to assist with barcode clarity.
 - **Resolution Ideal**: Set 720p (1280x720) as the ideal resolution to balance processing speed and barcode detail.
 - **Hardware Interaction**: Added checks for `getVideoTracks()` capabilities to handle devices with limited focus APIs.
+
+## ✨ Smart Data Entry (Crowdsourcing)
+- **Pre-fill Logic**: Step 2 now automatically populates `pricePaid` using the `avgPrice` returned from the database.
+- **Social Proof**: Added a "Common Price" badge to inform the user that the data is crowdsourced.
+- **UX**: Distinguishes between "New Products" (empty input) and "Known Products" (suggested price).
+

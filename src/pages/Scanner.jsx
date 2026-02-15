@@ -15,23 +15,31 @@ const Scanner = () => {
   const processLookup = async (barcodeValue) => {
     if (!barcodeValue || loading) return;
 
+    setShowCamera(false); 
     setLoading(true);
     setError('');
 
     try {
       const response = await api.post('/products/lookup', { barcode: barcodeValue });
       
-      // Your backend structure: { success: true, data: { name, image, barcode... } }
       if (response.data && response.data.data) {
-        setProduct(response.data.data); 
+        const productData = response.data.data;
+        setProduct(productData);
+        
+        // --- NEW LOGIC: Pre-fill Price ---
+        // If avgPrice exists and is greater than 0, use it as default
+        if (productData.avgPrice && productData.avgPrice > 0) {
+          setPricePaid(productData.avgPrice.toString());
+        } else {
+          setPricePaid(''); // Leave empty for truly new products
+        }
+        
         setStep(2);
-        setShowCamera(false);
       } else {
         setError("Product found but details are missing.");
       }
     } catch (err) {
-      console.error("Lookup Error:", err);
-      setError("Product not found. You can try another barcode.");
+      setError("Product not found. Try another barcode.");
     } finally {
       setLoading(false);
     }
@@ -138,47 +146,39 @@ const Scanner = () => {
           )}
         </div>
       ) : (
-        <form
-          onSubmit={handleScanSubmit}
-          className="bg-white p-6 shadow-2xl rounded-2xl space-y-5 animate-in fade-in zoom-in duration-300"
-        >
-          <div className="text-center">
-            {/* --- NEW IMAGE SECTION --- */}
-            {product?.image ? (
-              <div className="mb-4">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-32 h-32 mx-auto object-contain rounded-lg border bg-gray-50 p-2"
-                />
+        <form onSubmit={handleScanSubmit} className="bg-white p-6 shadow-2xl rounded-2xl space-y-5">
+      <div className="text-center">
+          {product?.image && (
+              <img src={product.image} alt={product.name} className="w-24 h-24 mx-auto mb-2 object-contain" />
+          )}
+          <h2 className="text-xl font-extrabold text-gray-800">{product?.name}</h2>
+          
+          {/* --- NEW UI: Price Suggestion --- */}
+          {product?.priceCount > 0 && (
+              <div className="mt-2 inline-block bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-bold">
+                  Common price: ₹{product.avgPrice.toFixed(2)}
               </div>
-            ) : (
-              <div className="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">📦</span>
-              </div>
-            )}
-            {/* ------------------------- */}
-            
-            <span className="text-xs font-bold text-indigo-500 uppercase tracking-widest">
-              Product Found
-            </span>
-            <h2 className="text-xl font-extrabold text-gray-800">
-              {product?.name}
-            </h2>
-          </div>
+          )}
+      </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-gray-600">
-              Amount Paid (Total)
-            </label>
-            <input
+      <div className="space-y-1">
+          <label className="text-sm font-semibold text-gray-600">
+              {product?.priceCount > 0 ? "Confirm or Edit Price" : "Enter Price Paid"}
+          </label>
+          <input
               type="number"
-              className="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-indigo-500 outline-none transition"
+              className="w-full border-2 border-indigo-100 p-3 rounded-xl focus:border-indigo-500 outline-none transition font-bold text-lg"
               value={pricePaid}
               onChange={(e) => setPricePaid(e.target.value)}
+              placeholder="0.00"
               required
-            />
-          </div>
+          />
+          {product?.priceCount > 0 && (
+              <p className="text-[10px] text-gray-400 italic">
+                  Based on {product.priceCount} other users' scans.
+              </p>
+          )}
+      </div>
 
           <div className="space-y-1">
             <label className="text-sm font-semibold text-gray-600">
