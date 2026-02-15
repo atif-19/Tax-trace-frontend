@@ -137,3 +137,15 @@
 - **Social Proof**: Added a "Common Price" badge to inform the user that the data is crowdsourced.
 - **UX**: Distinguishes between "New Products" (empty input) and "Known Products" (suggested price).
 
+## 📜 Phase 8.1 Integration: History Module
+- **History.jsx**: Developed a visual feed for scan history leveraging the new `/api/scans/history` endpoint.
+- **Data Enrichment**: Implemented UI to display nested product details (images/names) fetched via MongoDB populated fields.
+- **Date Formatting**: Applied `toLocaleDateString` with specific options for a cleaner "Feb 14, 10:30 AM" style timestamp.
+- **Line Clamping**: Used Tailwind `line-clamp-1` to ensure long product names don't break the layout.
+
+## 📜 Phase 8.2: History Summaries
+- **Client-side Analytics**: Integrated `Array.prototype.reduce` to calculate "Total GST Tracked" and "Total Spend" directly from the scan history array.
+- **UI Architecture**: Added a dark-themed summary card to provide high-level context before the detailed scrollable list.
+- **Visual Polish**: Improved spacing and typography for better readability on mobile screens.
+
+

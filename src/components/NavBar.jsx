@@ -19,6 +19,7 @@ const Navbar = () => {
         {user ? (
           <>
             <Link to="/dashboard" className="text-gray-600 hover:text-indigo-600">Home</Link>
+            <Link to="/history" className="text-gray-600 hover:text-indigo-600 font-semibold">History</Link>
             <Link to="/scanner" className="text-gray-600 hover:text-indigo-600 font-semibold">+ Scan Item</Link>
             <button 
               onClick={handleLogout}

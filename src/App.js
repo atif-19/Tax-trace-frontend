@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Navbar from './components/NavBar';
 import Scanner from './pages/Scanner';
 import Dashboard from './pages/Dashboard';
+import History from './pages/History';
 import ProtectedRoute from './components/protectedRoute'; // Import the guard
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
               <Scanner />
             </ProtectedRoute>
           } />
-          
+          <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
