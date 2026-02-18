@@ -149,7 +149,7 @@ const Scanner = () => {
         <form onSubmit={handleScanSubmit} className="bg-white p-6 shadow-2xl rounded-2xl space-y-5">
       <div className="text-center">
           {product?.image && (
-              <img src={product.image} alt={product.name} className="w-24 h-24 mx-auto mb-2 object-contain" />
+              <img src={product.image} onError={(e) => { e.target.src = 'https://placehold.co/400x400?text=No+Image+Available' }} alt={product.name} className="w-24 h-24 mx-auto mb-2 object-contain" />
           )}
           <h2 className="text-xl font-extrabold text-gray-800">{product?.name}</h2>
           
